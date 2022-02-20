@@ -97,6 +97,5 @@ class IOSender with Cancellable {
   void onCancel(Exception cancelException, [StackTrace? trace]) {
     if (!completer.isCompleted) completer.completeError(cancelException);
     ioRequest?.abort(cancelException);
-    cancellationToken?.detach(this);
   }
 }
