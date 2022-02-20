@@ -7,7 +7,7 @@ import 'dart:math' as math;
 
 import 'package:async/async.dart';
 
-import 'http.dart';
+import 'cancellable_http.dart';
 
 /// An HTTP client wrapper that automatically retries failing requests.
 class RetryClient extends BaseClient {

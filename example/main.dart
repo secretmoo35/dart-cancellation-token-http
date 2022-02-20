@@ -1,6 +1,6 @@
 import 'dart:convert' as convert;
 
-import 'package:http/http.dart' as http;
+import 'package:cancellable_http/cancellable_http.dart' as http;
 
 void main(List<String> arguments) async {
   // This example uses the Google Books API to search for books about http.

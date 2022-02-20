@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
+import 'package:cancellable_http/cancellable_http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:test/test.dart';
 

@@ -6,8 +6,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:http/http.dart';
-import 'package:http/src/utils.dart';
+import 'package:cancellable_http/cancellable_http.dart';
+import 'package:cancellable_http/src/utils.dart';
 import 'package:test/test.dart';
 
 export '../utils.dart';

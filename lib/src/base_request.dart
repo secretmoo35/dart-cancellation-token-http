@@ -6,7 +6,7 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 
-import '../http.dart' show get;
+import '../cancellable_http.dart' show get;
 import 'base_client.dart';
 import 'base_response.dart';
 import 'byte_stream.dart';

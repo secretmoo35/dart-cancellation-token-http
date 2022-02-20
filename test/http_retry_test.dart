@@ -2,10 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:cancellable_http/cancellable_http.dart';
+import 'package:cancellable_http/retry.dart';
+import 'package:cancellable_http/testing.dart';
 import 'package:fake_async/fake_async.dart';
-import 'package:http/http.dart';
-import 'package:http/retry.dart';
-import 'package:http/testing.dart';
 import 'package:test/test.dart';
 
 void main() {
