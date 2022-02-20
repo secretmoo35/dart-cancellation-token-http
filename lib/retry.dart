@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:async/async.dart';
+import 'package:cancellation_token/cancellation_token.dart';
 
 import 'cancellable_http.dart';
 
@@ -99,16 +100,22 @@ class RetryClient extends BaseClient {
         );
 
   @override
-  Future<StreamedResponse> send(BaseRequest request) async {
+  Future<StreamedResponse> send(
+    BaseRequest request, {
+    CancellationToken? cancellationToken,
+  }) async {
     final splitter = StreamSplitter(request.finalize());
 
     var i = 0;
     for (;;) {
       StreamedResponse? response;
       try {
-        response = await _inner.send(_copyRequest(request, splitter.split()));
+        response = await _inner.send(_copyRequest(request, splitter.split()),
+            cancellationToken: cancellationToken);
       } catch (error, stackTrace) {
-        if (i == _retries || !_whenError(error, stackTrace)) rethrow;
+        if ((cancellationToken?.isCancelled ?? false) ||
+            i == _retries ||
+            !_whenError(error, stackTrace)) rethrow;
       }
 
       if (response != null) {
@@ -119,7 +126,7 @@ class RetryClient extends BaseClient {
         _unawaited(response.stream.listen((_) {}).cancel().catchError((_) {}));
       }
 
-      await Future<void>.delayed(_delay(i));
+      await Future<void>.delayed(_delay(i)).asCancellable(cancellationToken);
       _onRetry?.call(request, response, i);
       i++;
     }

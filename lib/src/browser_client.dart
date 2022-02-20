@@ -6,6 +6,8 @@ import 'dart:async';
 import 'dart:html';
 import 'dart:typed_data';
 
+import 'package:cancellation_token/cancellation_token.dart';
+
 import 'base_client.dart';
 import 'base_request.dart';
 import 'byte_stream.dart';
@@ -39,43 +41,54 @@ class BrowserClient extends BaseClient {
 
   /// Sends an HTTP request and asynchronously returns the response.
   @override
-  Future<StreamedResponse> send(BaseRequest request) async {
-    var bytes = await request.finalize().toBytes();
-    var xhr = HttpRequest();
-    _xhrs.add(xhr);
-    xhr
-      ..open(request.method, '${request.url}', async: true)
-      ..responseType = 'arraybuffer'
-      ..withCredentials = withCredentials;
-    request.headers.forEach(xhr.setRequestHeader);
+  Future<StreamedResponse> send(
+    BaseRequest request, {
+    CancellationToken? cancellationToken,
+  }) async {
+    HttpRequest? xhr = HttpRequest();
+    final completer = CancellableCompleter<StreamedResponse>.sync(
+      cancellationToken,
+      onCancel: () {
+        _xhrs.remove(xhr);
+        xhr.abort();
+      },
+    );
 
-    var completer = Completer<StreamedResponse>();
+    unawaited(request.finalize().toBytes().then((bytes) async {
+      _xhrs.add(xhr);
+      xhr
+        ..open(request.method, '${request.url}', async: true)
+        ..responseType = 'arraybuffer'
+        ..withCredentials = withCredentials;
+      request.headers.forEach(xhr.setRequestHeader);
 
-    unawaited(xhr.onLoad.first.then((_) {
-      var body = (xhr.response as ByteBuffer).asUint8List();
-      completer.complete(StreamedResponse(
-          ByteStream.fromBytes(body), xhr.status!,
+      unawaited(xhr.onLoad.first.then((_) {
+        var body = (xhr.response as ByteBuffer).asUint8List();
+        completer.complete(StreamedResponse(
+          ByteStream.fromBytes(body),
+          xhr.status!,
           contentLength: body.length,
           request: request,
           headers: xhr.responseHeaders,
-          reasonPhrase: xhr.statusText));
-    }));
+          reasonPhrase: xhr.statusText,
+        ));
+        _xhrs.remove(xhr);
+      }));
 
-    unawaited(xhr.onError.first.then((_) {
-      // Unfortunately, the underlying XMLHttpRequest API doesn't expose any
-      // specific information about the error itself.
-      completer.completeError(
+      unawaited(xhr.onError.first.then((_) {
+        // Unfortunately, the underlying XMLHttpRequest API doesn't expose any
+        // specific information about the error itself.
+        completer.completeError(
           ClientException('XMLHttpRequest error.', request.url),
-          StackTrace.current);
+          StackTrace.current,
+        );
+        _xhrs.remove(xhr);
+      }));
+
+      xhr.send(bytes);
     }));
 
-    xhr.send(bytes);
-
-    try {
-      return await completer.future;
-    } finally {
-      _xhrs.remove(xhr);
-    }
+    return completer.future;
   }
 
   /// Closes the client.

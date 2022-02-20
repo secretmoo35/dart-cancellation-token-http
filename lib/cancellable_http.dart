@@ -6,6 +6,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:cancellation_token/cancellation_token.dart';
+
 import 'src/client.dart';
 import 'src/exception.dart';
 import 'src/request.dart';
@@ -32,8 +34,16 @@ export 'src/streamed_response.dart';
 /// the same server, you should use a single [Client] for all of those requests.
 ///
 /// For more fine-grained control over the request, use [Request] instead.
-Future<Response> head(Uri url, {Map<String, String>? headers}) =>
-    _withClient((client) => client.head(url, headers: headers));
+Future<Response> head(
+  Uri url, {
+  Map<String, String>? headers,
+  CancellationToken? cancellationToken,
+}) =>
+    _withClient((client) => client.head(
+          url,
+          headers: headers,
+          cancellationToken: cancellationToken,
+        ));
 
 /// Sends an HTTP GET request with the given headers to the given URL.
 ///
@@ -42,8 +52,10 @@ Future<Response> head(Uri url, {Map<String, String>? headers}) =>
 /// the same server, you should use a single [Client] for all of those requests.
 ///
 /// For more fine-grained control over the request, use [Request] instead.
-Future<Response> get(Uri url, {Map<String, String>? headers}) =>
-    _withClient((client) => client.get(url, headers: headers));
+Future<Response> get(Uri url,
+        {Map<String, String>? headers, CancellationToken? cancellationToken}) =>
+    _withClient((client) => client.get(url,
+        headers: headers, cancellationToken: cancellationToken));
 
 /// Sends an HTTP POST request with the given headers and body to the given URL.
 ///
@@ -63,10 +75,20 @@ Future<Response> get(Uri url, {Map<String, String>? headers}) =>
 ///
 /// For more fine-grained control over the request, use [Request] or
 /// [StreamedRequest] instead.
-Future<Response> post(Uri url,
-        {Map<String, String>? headers, Object? body, Encoding? encoding}) =>
-    _withClient((client) =>
-        client.post(url, headers: headers, body: body, encoding: encoding));
+Future<Response> post(
+  Uri url, {
+  Map<String, String>? headers,
+  Object? body,
+  Encoding? encoding,
+  CancellationToken? cancellationToken,
+}) =>
+    _withClient((client) => client.post(
+          url,
+          headers: headers,
+          body: body,
+          encoding: encoding,
+          cancellationToken: cancellationToken,
+        ));
 
 /// Sends an HTTP PUT request with the given headers and body to the given URL.
 ///
@@ -86,10 +108,20 @@ Future<Response> post(Uri url,
 ///
 /// For more fine-grained control over the request, use [Request] or
 /// [StreamedRequest] instead.
-Future<Response> put(Uri url,
-        {Map<String, String>? headers, Object? body, Encoding? encoding}) =>
-    _withClient((client) =>
-        client.put(url, headers: headers, body: body, encoding: encoding));
+Future<Response> put(
+  Uri url, {
+  Map<String, String>? headers,
+  Object? body,
+  Encoding? encoding,
+  CancellationToken? cancellationToken,
+}) =>
+    _withClient((client) => client.put(
+          url,
+          headers: headers,
+          body: body,
+          encoding: encoding,
+          cancellationToken: cancellationToken,
+        ));
 
 /// Sends an HTTP PATCH request with the given headers and body to the given
 /// URL.
@@ -110,10 +142,20 @@ Future<Response> put(Uri url,
 ///
 /// For more fine-grained control over the request, use [Request] or
 /// [StreamedRequest] instead.
-Future<Response> patch(Uri url,
-        {Map<String, String>? headers, Object? body, Encoding? encoding}) =>
-    _withClient((client) =>
-        client.patch(url, headers: headers, body: body, encoding: encoding));
+Future<Response> patch(
+  Uri url, {
+  Map<String, String>? headers,
+  Object? body,
+  Encoding? encoding,
+  CancellationToken? cancellationToken,
+}) =>
+    _withClient((client) => client.patch(
+          url,
+          headers: headers,
+          body: body,
+          encoding: encoding,
+          cancellationToken: cancellationToken,
+        ));
 
 /// Sends an HTTP DELETE request with the given headers to the given URL.
 ///
@@ -122,10 +164,20 @@ Future<Response> patch(Uri url,
 /// the same server, you should use a single [Client] for all of those requests.
 ///
 /// For more fine-grained control over the request, use [Request] instead.
-Future<Response> delete(Uri url,
-        {Map<String, String>? headers, Object? body, Encoding? encoding}) =>
-    _withClient((client) =>
-        client.delete(url, headers: headers, body: body, encoding: encoding));
+Future<Response> delete(
+  Uri url, {
+  Map<String, String>? headers,
+  Object? body,
+  Encoding? encoding,
+  CancellationToken? cancellationToken,
+}) =>
+    _withClient((client) => client.delete(
+          url,
+          headers: headers,
+          body: body,
+          encoding: encoding,
+          cancellationToken: cancellationToken,
+        ));
 
 /// Sends an HTTP GET request with the given headers to the given URL and
 /// returns a Future that completes to the body of the response as a [String].
@@ -139,8 +191,16 @@ Future<Response> delete(Uri url,
 ///
 /// For more fine-grained control over the request and response, use [Request]
 /// instead.
-Future<String> read(Uri url, {Map<String, String>? headers}) =>
-    _withClient((client) => client.read(url, headers: headers));
+Future<String> read(
+  Uri url, {
+  Map<String, String>? headers,
+  CancellationToken? cancellationToken,
+}) =>
+    _withClient((client) => client.read(
+          url,
+          headers: headers,
+          cancellationToken: cancellationToken,
+        ));
 
 /// Sends an HTTP GET request with the given headers to the given URL and
 /// returns a Future that completes to the body of the response as a list of
@@ -155,8 +215,16 @@ Future<String> read(Uri url, {Map<String, String>? headers}) =>
 ///
 /// For more fine-grained control over the request and response, use [Request]
 /// instead.
-Future<Uint8List> readBytes(Uri url, {Map<String, String>? headers}) =>
-    _withClient((client) => client.readBytes(url, headers: headers));
+Future<Uint8List> readBytes(
+  Uri url, {
+  Map<String, String>? headers,
+  CancellationToken? cancellationToken,
+}) =>
+    _withClient((client) => client.readBytes(
+          url,
+          headers: headers,
+          cancellationToken: cancellationToken,
+        ));
 
 Future<T> _withClient<T>(Future<T> Function(Client) fn) async {
   var client = Client();

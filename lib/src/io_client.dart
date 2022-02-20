@@ -4,9 +4,11 @@
 
 import 'dart:io';
 
+import 'package:cancellation_token/cancellation_token.dart';
+
 import 'base_client.dart';
 import 'base_request.dart';
-import 'exception.dart';
+import 'io_sender.dart';
 import 'io_streamed_response.dart';
 
 /// Create an [IOClient].
@@ -23,49 +25,10 @@ class IOClient extends BaseClient {
 
   /// Sends an HTTP request and asynchronously returns the response.
   @override
-  Future<IOStreamedResponse> send(BaseRequest request) async {
-    if (_inner == null) {
-      throw ClientException(
-          'HTTP request failed. Client is already closed.', request.url);
-    }
-
-    var stream = request.finalize();
-
-    try {
-      var ioRequest = (await _inner!.openUrl(request.method, request.url))
-        ..followRedirects = request.followRedirects
-        ..maxRedirects = request.maxRedirects
-        ..contentLength = (request.contentLength ?? -1)
-        ..persistentConnection = request.persistentConnection;
-      request.headers.forEach((name, value) {
-        ioRequest.headers.set(name, value);
-      });
-
-      var response = await stream.pipe(ioRequest) as HttpClientResponse;
-
-      var headers = <String, String>{};
-      response.headers.forEach((key, values) {
-        headers[key] = values.join(',');
-      });
-
-      return IOStreamedResponse(
-          response.handleError((Object error) {
-            final httpException = error as HttpException;
-            throw ClientException(httpException.message, httpException.uri);
-          }, test: (error) => error is HttpException),
-          response.statusCode,
-          contentLength:
-              response.contentLength == -1 ? null : response.contentLength,
-          request: request,
-          headers: headers,
-          isRedirect: response.isRedirect,
-          persistentConnection: response.persistentConnection,
-          reasonPhrase: response.reasonPhrase,
-          inner: response);
-    } on HttpException catch (error) {
-      throw ClientException(error.message, error.uri);
-    }
-  }
+  Future<IOStreamedResponse> send(
+    BaseRequest request, {
+    CancellationToken? cancellationToken,
+  }) async => await IOSender(request, _inner, cancellationToken).result;
 
   /// Closes the client.
   ///

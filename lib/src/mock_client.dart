@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:cancellation_token/cancellation_token.dart';
+
 import 'base_client.dart';
 import 'base_request.dart';
 import 'byte_stream.dart';
@@ -65,7 +67,10 @@ class MockClient extends BaseClient {
         });
 
   @override
-  Future<StreamedResponse> send(BaseRequest request) async {
+  Future<StreamedResponse> send(
+    BaseRequest request, {
+    CancellationToken? cancellationToken,
+  }) async {
     var bodyStream = request.finalize();
     return await _handler(request, bodyStream);
   }
