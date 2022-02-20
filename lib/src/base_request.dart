@@ -4,6 +4,7 @@
 
 import 'dart:collection';
 
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:meta/meta.dart';
 
 import '../cancellable_http.dart' show get;
@@ -126,11 +127,12 @@ abstract class BaseRequest {
   /// the request is complete. If you're planning on making multiple requests to
   /// the same server, you should use a single [Client] for all of those
   /// requests.
-  Future<StreamedResponse> send() async {
+  Future<StreamedResponse> send({CancellationToken? cancellationToken}) async {
     var client = Client();
 
     try {
-      var response = await client.send(this);
+      var response =
+          await client.send(this, cancellationToken: cancellationToken);
       var stream = onDone(response.stream, client.close);
       return StreamedResponse(ByteStream(stream), response.statusCode,
           contentLength: response.contentLength,

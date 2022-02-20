@@ -54,8 +54,11 @@ Future<Response> head(
 /// For more fine-grained control over the request, use [Request] instead.
 Future<Response> get(Uri url,
         {Map<String, String>? headers, CancellationToken? cancellationToken}) =>
-    _withClient((client) => client.get(url,
-        headers: headers, cancellationToken: cancellationToken));
+    _withClient((client) => client.get(
+          url,
+          headers: headers,
+          cancellationToken: cancellationToken,
+        ));
 
 /// Sends an HTTP POST request with the given headers and body to the given URL.
 ///

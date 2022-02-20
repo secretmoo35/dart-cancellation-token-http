@@ -26,7 +26,7 @@ abstract class BaseClient implements Client {
     Map<String, String>? headers,
     CancellationToken? cancellationToken,
   }) =>
-      _sendUnstreamed('HEAD', url, headers, cancellationToken);
+      _sendUnstreamed('HEAD', url, headers, null, null, cancellationToken);
 
   @override
   Future<Response> get(
@@ -34,7 +34,7 @@ abstract class BaseClient implements Client {
     Map<String, String>? headers,
     CancellationToken? cancellationToken,
   }) =>
-      _sendUnstreamed('GET', url, headers, cancellationToken);
+      _sendUnstreamed('GET', url, headers, null, null, cancellationToken);
 
   @override
   Future<Response> post(
@@ -139,7 +139,9 @@ abstract class BaseClient implements Client {
       }
     }
 
-    return Response.fromStream(await send(request));
+    return Response.fromStream(
+      await send(request, cancellationToken: cancellationToken),
+    );
   }
 
   /// Throws an error if [response] is not successful.
