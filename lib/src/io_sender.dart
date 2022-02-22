@@ -68,10 +68,23 @@ class IOSender with Cancellable {
       // Return the response with the response data stream
       completer.complete(
         IOStreamedResponse(
-          response.handleError((Object error) {
-            final httpException = error as HttpException;
-            throw ClientException(httpException.message, httpException.uri);
-          }, test: (error) => error is HttpException),
+          response.transform(
+            StreamTransformer<List<int>, List<int>>.fromHandlers(
+              handleData: (data, sink) => sink.add(data),
+              handleError: (error, stackTrace, sink) {
+                if (error is HttpException) {
+                  sink.addError(ClientException(error.message, error.uri));
+                } else {
+                  sink.addError(error, stackTrace);
+                }
+              },
+              handleDone: (sink) {
+                // Detatch when the response completes
+                cancellationToken?.detach(this);
+                sink.close();
+              },
+            ),
+          ),
           response.statusCode,
           contentLength:
               response.contentLength == -1 ? null : response.contentLength,
