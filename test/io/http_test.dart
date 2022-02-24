@@ -2,10 +2,9 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-@TestOn('vm')
-
-import 'package:cancellation_token_http/cancellable_http.dart' as http;
 import 'package:cancellation_token/cancellation_token.dart';
+@TestOn('vm')
+import 'package:cancellation_token_http/cancellable_http.dart' as http;
 import 'package:test/test.dart';
 
 import 'utils.dart';

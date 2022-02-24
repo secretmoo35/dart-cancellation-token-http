@@ -64,8 +64,8 @@ class RetryClient extends BaseClient {
     RangeError.checkNotNegative(_retries, 'retries');
   }
 
-  /// Like [new RetryClient], but with a pre-computed list of [delays]
-  /// between each retry.
+  /// Like [RetryClient], but with a pre-computed list of [delays] between each
+  /// retry.
   ///
   /// This will retry a request at most `delays.length` times, using each delay
   /// in order. It will wait for `delays[0]` after the initial request,
