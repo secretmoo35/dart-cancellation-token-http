@@ -9,7 +9,7 @@
 /// that responds to HTTP requests:
 ///
 ///     import 'dart:convert';
-///     import 'package:cancellable_http/testing.dart';
+///     import 'package:cancellation_token_http/testing.dart';
 ///
 ///     var client = MockClient((request) async {
 ///       if (request.url.path != "/data.json") {

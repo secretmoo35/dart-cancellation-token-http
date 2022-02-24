@@ -4,8 +4,8 @@
 
 import 'dart:convert';
 
-import 'package:cancellable_http/cancellable_http.dart' as http;
-import 'package:cancellable_http/testing.dart';
+import 'package:cancellation_token_http/cancellable_http.dart' as http;
+import 'package:cancellation_token_http/testing.dart';
 import 'package:test/test.dart';
 
 import 'utils.dart';
