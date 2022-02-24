@@ -33,6 +33,15 @@ Future<void> startServer() async {
         return;
       }
 
+      if (path == '/delayed') {
+        await Future<void>.delayed(const Duration(seconds: 5));
+        response
+          ..statusCode = 400
+          ..contentLength = 0;
+        unawaited(response.close());
+        return;
+      }
+
       if (path == '/loop') {
         var n = int.parse(request.uri.query);
         response

@@ -43,6 +43,39 @@ void main() {
                       containsPair('x-other-header', ['Other Value']))))));
     });
 
+    test('get with cancellation during request', () async {
+      var token = CancellationToken();
+      expect(
+        http.get(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+      token.cancel();
+    });
+
+    test('get with cancellation before request', () async {
+      var token = CancellationToken()..cancel();
+      expect(
+        http.get(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+    });
+
     test('post', () async {
       var response = await http.post(serverUrl, headers: {
         'X-Random-Header': 'Value',
