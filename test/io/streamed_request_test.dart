@@ -6,6 +6,7 @@
 
 import 'dart:convert';
 
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:cancellation_token_http/cancellable_http.dart' as http;
 import 'package:test/test.dart';
 
@@ -39,6 +40,19 @@ void main() {
       expect(await utf8.decodeStream(response.stream),
           parse(containsPair('headers', isNot(contains('content-length')))));
     });
+  });
+
+  test('.send() with cancellation whilst sending request body', () async {
+    final token = CancellationToken();
+    var request = http.StreamedRequest('POST', serverUrl)
+      ..contentLength = 10
+      ..sink.add([1, 2, 3, 4, 5]);
+
+    expect(
+      request.send(cancellationToken: token),
+      throwsA(isA<CancelledException>()),
+    );
+    Future.delayed(const Duration(seconds: 1), token.cancel);
   });
 
   // Regression test.

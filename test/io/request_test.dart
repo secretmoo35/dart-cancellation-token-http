@@ -4,6 +4,7 @@
 
 @TestOn('vm')
 
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:cancellation_token_http/cancellable_http.dart' as http;
 import 'package:test/test.dart';
 
@@ -62,5 +63,40 @@ void main() {
         request.send(),
         throwsA(isA<http.ClientException>()
             .having((e) => e.message, 'message', 'Redirect limit exceeded')));
+  });
+
+  test('with cancellation', () async {
+    final token = CancellationToken();
+    final request = http.Request('GET', serverUrl.resolve('/delayed'))
+      ..followRedirects = false;
+
+    expect(
+      request.send(cancellationToken: token),
+      throwsA(isA<CancelledException>()),
+    );
+    Future.delayed(const Duration(milliseconds: 100), token.cancel);
+  });
+
+  test('with cancellation whilst receiving the response body', () async {
+    final token = CancellationToken();
+    final request = http.Request('GET', serverUrl.resolve('/delayed-close'))
+      ..followRedirects = false;
+
+    expect(
+      (await request.send(cancellationToken: token)).stream,
+      emitsError(isA<CancelledException>()),
+    );
+    Future.delayed(const Duration(seconds: 1), token.cancel);
+  });
+
+  test('with cancellation before request', () async {
+    final token = CancellationToken()..cancel();
+    final request = http.Request('GET', serverUrl.resolve('/delayed'))
+      ..followRedirects = false;
+
+    expect(
+      request.send(cancellationToken: token),
+      throwsA(isA<CancelledException>()),
+    );
   });
 }

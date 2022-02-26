@@ -56,7 +56,24 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      token.cancel();
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+    });
+
+    test('get with cancellation whilst receiving the response body', () async {
+      var token = CancellationToken();
+      expect(
+        http.get(
+          serverUrl.resolve('/delayed-close'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+      Future.delayed(const Duration(seconds: 1), token.cancel);
     });
 
     test('get with cancellation before request', () async {
@@ -97,6 +114,59 @@ void main() {
               'x-other-header': ['Other Value']
             }
           })));
+    });
+
+    test('post with cancellation during request', () async {
+      var token = CancellationToken();
+      expect(
+        http.post(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'Content-Type': 'text/plain',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+    });
+
+    test('post with cancellation whilst receiving the response body', () async {
+      var token = CancellationToken();
+      expect(
+        http.post(
+          serverUrl.resolve('/delayed-close'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'Content-Type': 'text/plain',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+      Future.delayed(const Duration(seconds: 1), token.cancel);
+    });
+
+    test('post with cancellation before request', () async {
+      var token = CancellationToken()..cancel();
+      expect(
+        http.post(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'Content-Type': 'text/plain',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
     });
 
     test('post with string', () async {
@@ -207,6 +277,59 @@ void main() {
           })));
     });
 
+    test('put with cancellation during request', () async {
+      var token = CancellationToken();
+      expect(
+        http.put(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'Content-Type': 'text/plain',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+    });
+
+    test('put with cancellation whilst receiving the response body', () async {
+      var token = CancellationToken();
+      expect(
+        http.put(
+          serverUrl.resolve('/delayed-close'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'Content-Type': 'text/plain',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+      Future.delayed(const Duration(seconds: 1), token.cancel);
+    });
+
+    test('put with cancellation before request', () async {
+      var token = CancellationToken()..cancel();
+      expect(
+        http.put(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'Content-Type': 'text/plain',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+    });
+
     test('put with string', () async {
       var response = await http.put(serverUrl,
           headers: {
@@ -315,6 +438,60 @@ void main() {
           })));
     });
 
+    test('patch with cancellation during request', () async {
+      var token = CancellationToken();
+      expect(
+        http.patch(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'Content-Type': 'text/plain',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+    });
+
+    test('patch with cancellation whilst receiving the response body',
+        () async {
+      var token = CancellationToken();
+      expect(
+        http.patch(
+          serverUrl.resolve('/delayed-close'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'Content-Type': 'text/plain',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+      Future.delayed(const Duration(seconds: 1), token.cancel);
+    });
+
+    test('patch with cancellation before request', () async {
+      var token = CancellationToken()..cancel();
+      expect(
+        http.patch(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'Content-Type': 'text/plain',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+    });
+
     test('patch with string', () async {
       var response = await http.patch(serverUrl,
           headers: {
@@ -420,6 +597,57 @@ void main() {
                       containsPair('x-other-header', ['Other Value']))))));
     });
 
+    test('delete with cancellation during request', () async {
+      var token = CancellationToken();
+      expect(
+        http.delete(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+    });
+
+    test('delete with cancellation whilst receiving the response body',
+        () async {
+      var token = CancellationToken();
+      expect(
+        http.delete(
+          serverUrl.resolve('/delayed-close'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+      Future.delayed(const Duration(seconds: 1), token.cancel);
+    });
+
+    test('delete with cancellation before request', () async {
+      var token = CancellationToken()..cancel();
+      expect(
+        http.delete(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+    });
+
     test('read', () async {
       var response = await http.read(serverUrl, headers: {
         'X-Random-Header': 'Value',
@@ -438,6 +666,56 @@ void main() {
                       containsPair('user-agent', ['Dart']),
                       containsPair('x-random-header', ['Value']),
                       containsPair('x-other-header', ['Other Value']))))));
+    });
+
+    test('read with cancellation during request', () async {
+      var token = CancellationToken();
+      expect(
+        http.read(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+    });
+
+    test('read with cancellation whilst receiving the response body', () async {
+      var token = CancellationToken();
+      expect(
+        http.read(
+          serverUrl.resolve('/delayed-close'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+      Future.delayed(const Duration(seconds: 1), token.cancel);
+    });
+
+    test('read with cancellation before request', () async {
+      var token = CancellationToken()..cancel();
+      expect(
+        http.read(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
     });
 
     test('read throws an error for a 4** status code', () {
@@ -463,6 +741,39 @@ void main() {
                       containsPair('user-agent', ['Dart']),
                       containsPair('x-random-header', ['Value']),
                       containsPair('x-other-header', ['Other Value']))))));
+    });
+
+    test('readBytes with cancellation during request', () async {
+      var token = CancellationToken();
+      expect(
+        http.readBytes(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+    });
+
+    test('readBytes with cancellation before request', () async {
+      var token = CancellationToken()..cancel();
+      expect(
+        http.readBytes(
+          serverUrl.resolve('/delayed'),
+          headers: {
+            'X-Random-Header': 'Value',
+            'X-Other-Header': 'Other Value',
+            'User-Agent': 'Dart'
+          },
+          cancellationToken: token,
+        ),
+        throwsA(isA<CancelledException>()),
+      );
     });
 
     test('readBytes throws an error for a 4** status code', () {

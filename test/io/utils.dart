@@ -5,6 +5,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cancellation_token_http/cancellable_http.dart';
 import 'package:cancellation_token_http/src/utils.dart';
@@ -71,7 +72,14 @@ Future<void> startServer() async {
         return;
       }
 
-      var requestBodyBytes = await ByteStream(request).toBytes();
+      // Catch errors if the connection is closed by the client
+      final Uint8List requestBodyBytes;
+      try {
+        requestBodyBytes = await ByteStream(request).toBytes();
+      } catch (_) {
+        return;
+      }
+
       var encodingName = request.uri.queryParameters['response-encoding'];
       var outputEncoding = encodingName == null
           ? ascii
@@ -110,9 +118,14 @@ Future<void> startServer() async {
       };
 
       var body = json.encode(content);
-      response
-        ..contentLength = body.length
-        ..write(body);
+      if (path == '/delayed-close') {
+        response.write(body);
+        await Future<void>.delayed(const Duration(seconds: 5));
+      } else {
+        response
+          ..contentLength = body.length
+          ..write(body);
+      }
       unawaited(response.close());
     });
 }

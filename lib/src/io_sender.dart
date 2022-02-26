@@ -6,24 +6,35 @@ import 'package:cancellation_token/cancellation_token.dart';
 import '../cancellable_http.dart';
 import '../io_client.dart';
 
+/// Handles sending reguests with cancellation for [IOClient].
 class IOSender with Cancellable {
   IOSender(
-    this.request,
-    this.httpClient,
-    this.cancellationToken,
+    BaseRequest request,
+    HttpClient? httpClient,
+    CancellationToken? cancellationToken,
   ) : completer = Completer() {
-    _send();
+    _send(request, httpClient, cancellationToken);
   }
 
-  final BaseRequest request;
-  final HttpClient? httpClient;
-  final CancellationToken? cancellationToken;
   final Completer<IOStreamedResponse> completer;
-  HttpClientRequest? ioRequest;
+  HttpClientRequest? clientRequest;
+  HttpClientResponse? clientResponse;
+  StreamController<List<int>>? responseStreamController;
 
   Future<IOStreamedResponse> get result => completer.future;
 
-  Future<void> _send() async {
+  /// Sends the request.
+  ///
+  /// [HttpClientResponse] currently doesn't support aborting with an exception
+  /// like [HttpClientRequest] does, so [IOSender] instead creates it's own
+  /// stream which response data is passed into. If the request is cancelled
+  /// whilst receiving data, the cancellation exception is added to the stream
+  /// before closing it, and the socket is detached and destroyed.
+  Future<void> _send(
+    BaseRequest request,
+    HttpClient? httpClient,
+    CancellationToken? cancellationToken,
+  ) async {
     if (!maybeAttach(cancellationToken)) return;
 
     if (httpClient == null) {
@@ -36,11 +47,10 @@ class IOSender with Cancellable {
       );
     }
 
-    final stream = request.finalize();
-
     try {
-      // Open the connection
-      ioRequest = (await httpClient!.openUrl(request.method, request.url))
+      // Finalise the request and open the connection
+      final requestStream = request.finalize();
+      clientRequest = (await httpClient.openUrl(request.method, request.url))
         ..followRedirects = request.followRedirects
         ..maxRedirects = request.maxRedirects
         ..contentLength = (request.contentLength ?? -1)
@@ -48,59 +58,62 @@ class IOSender with Cancellable {
 
       // Cancel the request immediately if the token was cancelled
       if (cancellationToken?.isCancelled ?? false) {
-        return cancellationToken?.detach(this);
+        unawaited(clientRequest!.close());
+        return;
       }
 
       // Add the request headers
       request.headers.forEach((name, value) {
-        ioRequest!.headers.set(name, value);
+        clientRequest!.headers.set(name, value);
       });
 
       // Send the request body
-      final response = await stream.pipe(ioRequest!) as HttpClientResponse;
+      clientResponse =
+          await requestStream.pipe(clientRequest!) as HttpClientResponse;
+      clientRequest = null;
 
       // Get the headers from the response
       final responseHeaders = <String, String>{};
-      response.headers.forEach((key, values) {
+      clientResponse!.headers.forEach((key, values) {
         responseHeaders[key] = values.join(',');
       });
 
-      // Return the response with the response data stream
+      // Prepare the response stream and pass the client response data into it
+      responseStreamController = StreamController();
+      clientResponse!.listen(
+        (data) => responseStreamController?.add(data),
+        onError: (Object error, StackTrace? stackTrace) {
+          responseStreamController?.addError(
+            _convertHttpException(error),
+            stackTrace,
+          );
+        },
+        onDone: () {
+          cancellationToken?.detach(this);
+          responseStreamController?.close();
+          responseStreamController = null;
+        },
+      );
+
+      // Return the response with the response stream
       completer.complete(
         IOStreamedResponse(
-          response.transform(
-            StreamTransformer<List<int>, List<int>>.fromHandlers(
-              handleData: (data, sink) => sink.add(data),
-              handleError: (error, stackTrace, sink) {
-                if (error is HttpException) {
-                  sink.addError(ClientException(error.message, error.uri));
-                } else {
-                  sink.addError(error, stackTrace);
-                }
-              },
-              handleDone: (sink) {
-                // Detatch when the response completes
-                cancellationToken?.detach(this);
-                sink.close();
-              },
-            ),
-          ),
-          response.statusCode,
-          contentLength:
-              response.contentLength == -1 ? null : response.contentLength,
+          responseStreamController!.stream,
+          clientResponse!.statusCode,
+          contentLength: clientResponse!.contentLength == -1
+              ? null
+              : clientResponse!.contentLength,
           request: request,
           headers: responseHeaders,
-          isRedirect: response.isRedirect,
-          persistentConnection: response.persistentConnection,
-          reasonPhrase: response.reasonPhrase,
-          inner: response,
+          isRedirect: clientResponse!.isRedirect,
+          persistentConnection: clientResponse!.persistentConnection,
+          reasonPhrase: clientResponse!.reasonPhrase,
+          inner: clientResponse,
         ),
       );
     } catch (e, stackTrace) {
       if (!completer.isCompleted) {
-        final exception =
-            e is HttpException ? ClientException(e.message, e.uri) : e;
-        completer.completeError(exception, stackTrace);
+        completer.completeError(_convertHttpException(e), stackTrace);
       }
       cancellationToken?.detach(this);
     }
@@ -108,7 +121,20 @@ class IOSender with Cancellable {
 
   @override
   void onCancel(Exception cancelException, [StackTrace? trace]) {
-    if (!completer.isCompleted) completer.completeError(cancelException);
-    ioRequest?.abort(cancelException);
+    if (!completer.isCompleted) completer.completeError(cancelException, trace);
+    // Add the cancellation exception and close the response stream if it's
+    // active
+    responseStreamController
+      ?..addError(cancelException, trace)
+      ..close();
+    responseStreamController = null;
+    // Abort the HTTP request if cancelled whilst sending the request
+    clientRequest?.abort(cancelException, trace);
+    // Detatch and destroy the socket to close the connection if cancelled
+    // whilst receiving the response body
+    clientResponse?.detachSocket().then((value) => value.destroy());
   }
+
+  Object _convertHttpException(Object e) =>
+      e is HttpException ? ClientException(e.message, e.uri) : e;
 }

@@ -6,6 +6,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:cancellation_token_http/cancellable_http.dart' as http;
 import 'package:cancellation_token_http/io_client.dart' as http_io;
 import 'package:test/test.dart';
@@ -105,6 +106,62 @@ void main() {
 
     request.sink.add('{"hello": "world"}'.codeUnits);
     request.sink.close();
+  });
+
+  test('send a StreamedRequest with cancellation whilst connecting', () async {
+    final token = CancellationToken();
+    var client = http.Client();
+    var request = http.StreamedRequest('POST', serverUrl.resolve('/delayed'))
+      ..headers[HttpHeaders.contentTypeHeader] =
+          'application/json; charset=utf-8'
+      ..headers[HttpHeaders.userAgentHeader] = 'Dart'
+      ..sink.add('{"hello": "world"}'.codeUnits)
+      ..sink.close();
+
+    expect(
+      client.send(request, cancellationToken: token),
+      throwsA(isA<CancelledException>()),
+    );
+    Future.delayed(const Duration(seconds: 1), token.cancel);
+  });
+
+  test(
+      'send a StreamedRequest with cancellation whilst sending the request '
+      'body', () async {
+    final token = CancellationToken();
+    var client = http.Client();
+    var request = http.StreamedRequest('POST', serverUrl)
+      ..headers[HttpHeaders.contentTypeHeader] =
+          'application/json; charset=utf-8'
+      ..headers[HttpHeaders.userAgentHeader] = 'Dart'
+      ..contentLength = 10
+      ..sink.add([1, 2, 3, 4, 5]);
+
+    expect(
+      client.send(request, cancellationToken: token),
+      throwsA(isA<CancelledException>()),
+    );
+    Future.delayed(const Duration(seconds: 1), token.cancel);
+  });
+
+  test(
+      'send a StreamedRequest with cancellation whilst receiving the response '
+      'body', () async {
+    final token = CancellationToken();
+    var client = http.Client();
+    var request =
+        http.StreamedRequest('POST', serverUrl.resolve('/delayed-close'))
+          ..headers[HttpHeaders.contentTypeHeader] =
+              'application/json; charset=utf-8'
+          ..headers[HttpHeaders.userAgentHeader] = 'Dart'
+          ..sink.add('{"hello": "world"}'.codeUnits)
+          ..sink.close();
+
+    expect(
+      (await client.send(request, cancellationToken: token)).stream,
+      emitsError(isA<CancelledException>()),
+    );
+    Future.delayed(const Duration(seconds: 1), token.cancel);
   });
 
   test('sends a MultipartRequest with correct content-type header', () async {
