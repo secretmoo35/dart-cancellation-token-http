@@ -58,7 +58,7 @@ class IOSender with Cancellable {
 
       // Cancel the request immediately if the token was cancelled
       if (cancellationToken?.isCancelled ?? false) {
-        unawaited(clientRequest!.close());
+        await clientRequest!.close();
         return;
       }
 
