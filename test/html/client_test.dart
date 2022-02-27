@@ -3,6 +3,8 @@
 // BSD-style license that can be found in the LICENSE file.
 
 @TestOn('browser')
+
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:cancellation_token_http/browser_client.dart';
 import 'package:cancellation_token_http/cancellable_http.dart' as http;
 import 'package:test/test.dart';
@@ -36,5 +38,28 @@ void main() {
 
     request.sink.add('{"hello": "world"}'.codeUnits);
     request.sink.close();
+  });
+
+  test('send with cancellation during request', () {
+    var client = BrowserClient();
+    var request = http.StreamedRequest('GET', echoUrl);
+    var token = CancellationToken();
+
+    expect(
+      client.send(request, cancellationToken: token),
+      throwsA(isA<CancelledException>()),
+    );
+    token.cancel();
+  });
+
+  test('send with cancellation before request', () {
+    var client = BrowserClient();
+    var request = http.StreamedRequest('GET', echoUrl);
+    var token = CancellationToken()..cancel();
+
+    expect(
+      client.send(request, cancellationToken: token),
+      throwsA(isA<CancelledException>()),
+    );
   });
 }

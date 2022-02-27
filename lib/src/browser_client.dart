@@ -55,6 +55,10 @@ class BrowserClient extends BaseClient {
     );
 
     unawaited(request.finalize().toBytes().then((bytes) async {
+      // Don't continue if the request has been cancelled at this point
+      if (cancellationToken?.isCancelled ?? false) return;
+
+      // Prepare the request
       _xhrs.add(xhr);
       xhr
         ..open(request.method, '${request.url}', async: true)
@@ -62,6 +66,7 @@ class BrowserClient extends BaseClient {
         ..withCredentials = withCredentials;
       request.headers.forEach(xhr.setRequestHeader);
 
+      // Prepare the response handler
       unawaited(xhr.onLoad.first.then((_) {
         var body = (xhr.response as ByteBuffer).asUint8List();
         completer.complete(StreamedResponse(
@@ -75,6 +80,7 @@ class BrowserClient extends BaseClient {
         _xhrs.remove(xhr);
       }));
 
+      // Prepare the error handler
       unawaited(xhr.onError.first.then((_) {
         // Unfortunately, the underlying XMLHttpRequest API doesn't expose any
         // specific information about the error itself.
@@ -85,6 +91,7 @@ class BrowserClient extends BaseClient {
         _xhrs.remove(xhr);
       }));
 
+      // Send the request
       xhr.send(bytes);
     }));
 
