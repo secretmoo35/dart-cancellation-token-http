@@ -28,7 +28,8 @@ class IOClient extends BaseClient {
   Future<IOStreamedResponse> send(
     BaseRequest request, {
     CancellationToken? cancellationToken,
-  }) async => await IOSender(request, _inner, cancellationToken).result;
+  }) =>
+      IOSender(request, _inner, cancellationToken).result;
 
   /// Closes the client.
   ///
