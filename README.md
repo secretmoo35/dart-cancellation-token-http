@@ -4,9 +4,15 @@ A fork of Dart's [HTTP package](https://pub.dev/packages/http) with request canc
 
 **Currently based on version 0.13.4 of the [HTTP package](https://pub.dev/packages/http/versions/0.13.4).**
 
+## Features
+
+* Retains all original functionality of the HTTP package.
+* Cancel HTTP requests using CancellationTokens.
+* Pair with the [cancellation_token](https://pub.dev/packages/cancellation_token) package to make a cancellable API request and parse the response JSON in a cancellable isolate using a single token.
+
 ## Using
 
-This package keeps the same APIs as the base HTTP package, but with the addition of optional `cancellationToken` parameters.
+This package keeps the same APIs as the base HTTP package, but with the addition of optional `cancellationToken` parameters. For more information on CancellationTokens, refer to [CancellationTokens](https://pub.dev/packages/cancellation_token#cancellation-tokens).
 
 ```dart
 import 'package:cancellation_token_http/cancellable_http.dart' as http;
@@ -35,7 +41,7 @@ try {
 
 ## Parsing JSON in an isolate
 
-When paired with the [cancellation_token](https://pub.dev/packages/cancellation_token) package, you can use a single CancellationToken for the request and parsing the response in an isolate.
+To parse JSON responses in a cancellable isolate, add the cancellation_token package to your project and use the same CancellationToken for both the API request and `cancellableCompute()`:
 
 ```dart
 import 'package:cancellation_token/cancellation_token.dart';
