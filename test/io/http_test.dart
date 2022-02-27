@@ -44,7 +44,10 @@ void main() {
 
     test('get with cancellation during request', () async {
       var token = CancellationToken();
-      expect(
+
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+
+      await expectLater(
         http.get(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -56,12 +59,15 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+      expect(token.hasCancellables, isFalse);
     });
 
     test('get with cancellation whilst receiving the response body', () async {
       var token = CancellationToken();
-      expect(
+
+      Future.delayed(const Duration(seconds: 1), token.cancel);
+
+      await expectLater(
         http.get(
           serverUrl.resolve('/delayed-close'),
           headers: {
@@ -73,12 +79,12 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      Future.delayed(const Duration(seconds: 1), token.cancel);
+      expect(token.hasCancellables, isFalse);
     });
 
     test('get with cancellation before request', () async {
       var token = CancellationToken()..cancel();
-      expect(
+      await expectLater(
         http.get(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -90,6 +96,7 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
+      expect(token.hasCancellables, isFalse);
     });
 
     test('post', () async {
@@ -118,7 +125,10 @@ void main() {
 
     test('post with cancellation during request', () async {
       var token = CancellationToken();
-      expect(
+
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+
+      await expectLater(
         http.post(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -131,12 +141,15 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+      expect(token.hasCancellables, isFalse);
     });
 
     test('post with cancellation whilst receiving the response body', () async {
       var token = CancellationToken();
-      expect(
+
+      Future.delayed(const Duration(seconds: 1), token.cancel);
+
+      await expectLater(
         http.post(
           serverUrl.resolve('/delayed-close'),
           headers: {
@@ -149,12 +162,12 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      Future.delayed(const Duration(seconds: 1), token.cancel);
+      expect(token.hasCancellables, isFalse);
     });
 
     test('post with cancellation before request', () async {
       var token = CancellationToken()..cancel();
-      expect(
+      await expectLater(
         http.post(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -167,6 +180,7 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
+      expect(token.hasCancellables, isFalse);
     });
 
     test('post with string', () async {
@@ -279,7 +293,10 @@ void main() {
 
     test('put with cancellation during request', () async {
       var token = CancellationToken();
-      expect(
+
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+
+      await expectLater(
         http.put(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -292,12 +309,15 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+      expect(token.hasCancellables, isFalse);
     });
 
     test('put with cancellation whilst receiving the response body', () async {
       var token = CancellationToken();
-      expect(
+
+      Future.delayed(const Duration(seconds: 1), token.cancel);
+
+      await expectLater(
         http.put(
           serverUrl.resolve('/delayed-close'),
           headers: {
@@ -310,12 +330,12 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      Future.delayed(const Duration(seconds: 1), token.cancel);
+      expect(token.hasCancellables, isFalse);
     });
 
     test('put with cancellation before request', () async {
       var token = CancellationToken()..cancel();
-      expect(
+      await expectLater(
         http.put(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -328,6 +348,7 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
+      expect(token.hasCancellables, isFalse);
     });
 
     test('put with string', () async {
@@ -440,7 +461,10 @@ void main() {
 
     test('patch with cancellation during request', () async {
       var token = CancellationToken();
-      expect(
+
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+
+      await expectLater(
         http.patch(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -453,13 +477,16 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+      expect(token.hasCancellables, isFalse);
     });
 
     test('patch with cancellation whilst receiving the response body',
         () async {
       var token = CancellationToken();
-      expect(
+
+      Future.delayed(const Duration(seconds: 1), token.cancel);
+
+      await expectLater(
         http.patch(
           serverUrl.resolve('/delayed-close'),
           headers: {
@@ -472,12 +499,12 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      Future.delayed(const Duration(seconds: 1), token.cancel);
+      expect(token.hasCancellables, isFalse);
     });
 
     test('patch with cancellation before request', () async {
       var token = CancellationToken()..cancel();
-      expect(
+      await expectLater(
         http.patch(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -490,6 +517,7 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
+      expect(token.hasCancellables, isFalse);
     });
 
     test('patch with string', () async {
@@ -599,7 +627,10 @@ void main() {
 
     test('delete with cancellation during request', () async {
       var token = CancellationToken();
-      expect(
+
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+
+      await expectLater(
         http.delete(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -611,13 +642,16 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+      expect(token.hasCancellables, isFalse);
     });
 
     test('delete with cancellation whilst receiving the response body',
         () async {
       var token = CancellationToken();
-      expect(
+
+      Future.delayed(const Duration(seconds: 1), token.cancel);
+
+      await expectLater(
         http.delete(
           serverUrl.resolve('/delayed-close'),
           headers: {
@@ -629,12 +663,12 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      Future.delayed(const Duration(seconds: 1), token.cancel);
+      expect(token.hasCancellables, isFalse);
     });
 
     test('delete with cancellation before request', () async {
       var token = CancellationToken()..cancel();
-      expect(
+      await expectLater(
         http.delete(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -646,6 +680,7 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
+      expect(token.hasCancellables, isFalse);
     });
 
     test('read', () async {
@@ -670,7 +705,10 @@ void main() {
 
     test('read with cancellation during request', () async {
       var token = CancellationToken();
-      expect(
+
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+
+      await expectLater(
         http.read(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -682,12 +720,15 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+      expect(token.hasCancellables, isFalse);
     });
 
     test('read with cancellation whilst receiving the response body', () async {
       var token = CancellationToken();
-      expect(
+
+      Future.delayed(const Duration(seconds: 1), token.cancel);
+
+      await expectLater(
         http.read(
           serverUrl.resolve('/delayed-close'),
           headers: {
@@ -699,12 +740,12 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      Future.delayed(const Duration(seconds: 1), token.cancel);
+      expect(token.hasCancellables, isFalse);
     });
 
     test('read with cancellation before request', () async {
       var token = CancellationToken()..cancel();
-      expect(
+      await expectLater(
         http.read(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -716,6 +757,7 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
+      expect(token.hasCancellables, isFalse);
     });
 
     test('read throws an error for a 4** status code', () {
@@ -745,7 +787,10 @@ void main() {
 
     test('readBytes with cancellation during request', () async {
       var token = CancellationToken();
-      expect(
+
+      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+
+      await expectLater(
         http.readBytes(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -757,12 +802,12 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
-      Future.delayed(const Duration(milliseconds: 100), token.cancel);
+      expect(token.hasCancellables, isFalse);
     });
 
     test('readBytes with cancellation before request', () async {
       var token = CancellationToken()..cancel();
-      expect(
+      await expectLater(
         http.readBytes(
           serverUrl.resolve('/delayed'),
           headers: {
@@ -774,6 +819,7 @@ void main() {
         ),
         throwsA(isA<CancelledException>()),
       );
+      expect(token.hasCancellables, isFalse);
     });
 
     test('readBytes throws an error for a 4** status code', () {

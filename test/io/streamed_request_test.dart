@@ -48,11 +48,13 @@ void main() {
       ..contentLength = 10
       ..sink.add([1, 2, 3, 4, 5]);
 
-    expect(
+    Future.delayed(const Duration(seconds: 1), token.cancel);
+
+    await expectLater(
       request.send(cancellationToken: token),
       throwsA(isA<CancelledException>()),
     );
-    Future.delayed(const Duration(seconds: 1), token.cancel);
+    expect(token.hasCancellables, isFalse);
   });
 
   // Regression test.

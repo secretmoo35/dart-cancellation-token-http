@@ -70,11 +70,13 @@ void main() {
     final request = http.Request('GET', serverUrl.resolve('/delayed'))
       ..followRedirects = false;
 
-    expect(
+    Future.delayed(const Duration(milliseconds: 100), token.cancel);
+
+    await expectLater(
       request.send(cancellationToken: token),
       throwsA(isA<CancelledException>()),
     );
-    Future.delayed(const Duration(milliseconds: 100), token.cancel);
+    expect(token.hasCancellables, isFalse);
   });
 
   test('with cancellation whilst receiving the response body', () async {
@@ -82,11 +84,13 @@ void main() {
     final request = http.Request('GET', serverUrl.resolve('/delayed-close'))
       ..followRedirects = false;
 
-    expect(
+    Future.delayed(const Duration(seconds: 1), token.cancel);
+
+    await expectLater(
       (await request.send(cancellationToken: token)).stream,
       emitsError(isA<CancelledException>()),
     );
-    Future.delayed(const Duration(seconds: 1), token.cancel);
+    expect(token.hasCancellables, isFalse);
   });
 
   test('with cancellation before request', () async {
@@ -94,9 +98,10 @@ void main() {
     final request = http.Request('GET', serverUrl.resolve('/delayed'))
       ..followRedirects = false;
 
-    expect(
+    await expectLater(
       request.send(cancellationToken: token),
       throwsA(isA<CancelledException>()),
     );
+    expect(token.hasCancellables, isFalse);
   });
 }

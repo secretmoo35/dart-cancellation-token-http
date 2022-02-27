@@ -118,11 +118,13 @@ void main() {
       ..sink.add('{"hello": "world"}'.codeUnits)
       ..sink.close();
 
-    expect(
+    Future.delayed(const Duration(seconds: 1), token.cancel);
+
+    await expectLater(
       client.send(request, cancellationToken: token),
       throwsA(isA<CancelledException>()),
     );
-    Future.delayed(const Duration(seconds: 1), token.cancel);
+    expect(token.hasCancellables, isFalse);
   });
 
   test(
@@ -137,11 +139,13 @@ void main() {
       ..contentLength = 10
       ..sink.add([1, 2, 3, 4, 5]);
 
-    expect(
+    Future.delayed(const Duration(seconds: 1), token.cancel);
+
+    await expectLater(
       client.send(request, cancellationToken: token),
       throwsA(isA<CancelledException>()),
     );
-    Future.delayed(const Duration(seconds: 1), token.cancel);
+    expect(token.hasCancellables, isFalse);
   });
 
   test(
@@ -157,11 +161,13 @@ void main() {
           ..sink.add('{"hello": "world"}'.codeUnits)
           ..sink.close();
 
-    expect(
+    Future.delayed(const Duration(seconds: 1), token.cancel);
+
+    await expectLater(
       (await client.send(request, cancellationToken: token)).stream,
       emitsError(isA<CancelledException>()),
     );
-    Future.delayed(const Duration(seconds: 1), token.cancel);
+    expect(token.hasCancellables, isFalse);
   });
 
   test('sends a MultipartRequest with correct content-type header', () async {
