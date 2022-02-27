@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:cancellation_token_http/cancellable_http.dart';
 import 'package:cancellation_token_http/retry.dart';
 import 'package:cancellation_token_http/testing.dart';
@@ -31,6 +32,19 @@ void main() {
           retries: 0);
       final response = await client.get(Uri.http('example.org', ''));
       expect(response.statusCode, equals(503));
+    });
+
+    test('a request is cancelled', () async {
+      final token = CancellationToken()..cancel();
+      final client = RetryClient(
+        MockClient(expectAsync1((_) async => throw token.exception, count: 1)),
+        when: (_) => false,
+      );
+
+      expect(
+        client.get(Uri.http('example.org', ''), cancellationToken: token),
+        throwsA(isA<CancelledException>()),
+      );
     });
   });
 
@@ -180,6 +194,24 @@ void main() {
 
       expect(client.get(Uri.http('example.org', '')), completes);
       fake.elapse(const Duration(minutes: 10));
+    });
+  });
+
+  test('handles cancellation during delay', () {
+    // Use FakeAsync to prevent the delay from ever completing
+    FakeAsync().run((fake) {
+      final token = CancellationToken();
+      final client = RetryClient(
+        MockClient(expectAsync1((_) async => Response('', 503))),
+        delay: (requestCount) => const Duration(seconds: 5),
+      );
+
+      expect(
+        client.get(Uri.http('example.org', ''), cancellationToken: token),
+        throwsA(isA<CancelledException>()),
+      );
+      token.cancel();
+      fake.flushMicrotasks();
     });
   });
 
