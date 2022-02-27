@@ -24,8 +24,8 @@ try {
     cancellationToken: token,
   );
   print('Read response: $readReponse');
-  print('Post response status: ${response.statusCode}');
-  print('Post response body: ${response.body}');
+  print('Post response status: ${postResponse.statusCode}');
+  print('Post response body: ${postResponse.body}');
 } on http.CancelledException {
   // If `token.cancel()` is called, the request will be cancelled and a
   // CancelledException will be thrown
