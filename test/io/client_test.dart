@@ -185,6 +185,58 @@ void main() {
     expect(contentType, startsWith('multipart/form-data; boundary='));
   });
 
+  test(
+      'cancelling a request does not affect other requests using the same '
+      'underlying client', () async {
+    var ioClient = HttpClient();
+    var client = http_io.IOClient(ioClient);
+    var token = CancellationToken();
+
+    Future.delayed(const Duration(seconds: 1), token.cancel);
+
+    // Simultaneous request
+    expect(
+      client.get(
+        serverUrl.resolve('/delayed'),
+        headers: {
+          'X-Random-Header': 'Value',
+          'X-Other-Header': 'Other Value',
+          'User-Agent': 'Dart'
+        },
+      ),
+      completion(
+        predicate((result) => (result as http.Response).statusCode == 200),
+      ),
+    );
+    // Cancelled request
+    await expectLater(
+      client.get(
+        serverUrl.resolve('/delayed'),
+        headers: {
+          'X-Random-Header': 'Value',
+          'X-Other-Header': 'Other Value',
+          'User-Agent': 'Dart'
+        },
+        cancellationToken: token,
+      ),
+      throwsA(isA<CancelledException>()),
+    );
+    // Post-cancel request
+    expect(
+      client.get(
+        serverUrl.resolve('/delayed'),
+        headers: {
+          'X-Random-Header': 'Value',
+          'X-Other-Header': 'Other Value',
+          'User-Agent': 'Dart'
+        },
+      ),
+      completion(
+        predicate((result) => (result as http.Response).statusCode == 200),
+      ),
+    );
+  });
+
   test('detachSocket returns a socket from an IOStreamedResponse', () async {
     var ioClient = HttpClient();
     var client = http_io.IOClient(ioClient);

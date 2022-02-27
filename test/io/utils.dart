@@ -37,7 +37,7 @@ Future<void> startServer() async {
       if (path == '/delayed') {
         await Future<void>.delayed(const Duration(seconds: 5));
         response
-          ..statusCode = 400
+          ..statusCode = 200
           ..contentLength = 0;
         unawaited(response.close());
         return;
