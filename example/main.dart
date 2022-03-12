@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert' as convert;
 
 import 'package:cancellation_token/cancellation_token.dart';
-import 'package:cancellation_token_http/cancellable_http.dart' as http;
+import 'package:cancellation_token_http/http.dart' as http;
 
 // This example uses the Google Books API to search for books about http.
 // https://developers.google.com/books/docs/overview

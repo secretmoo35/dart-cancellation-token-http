@@ -15,7 +15,7 @@ A fork of Dart's [HTTP package](https://pub.dev/packages/http) with request canc
 This package keeps the same APIs as the base HTTP package, but with the addition of optional `cancellationToken` parameters. For more information on CancellationTokens, refer to [CancellationTokens](https://pub.dev/packages/cancellation_token#cancellation-tokens).
 
 ```dart
-import 'package:cancellation_token_http/cancellable_http.dart' as http;
+import 'package:cancellation_token_http/http.dart' as http;
 
 var token = http.CancellationToken();
 try {
@@ -45,7 +45,7 @@ To parse JSON responses in a cancellable isolate, add the cancellation_token pac
 
 ```dart
 import 'package:cancellation_token/cancellation_token.dart';
-import 'package:cancellation_token_http/cancellable_http.dart' as http;
+import 'package:cancellation_token_http/http.dart' as http;
 
 Future<void> makeRequest() async {
   var token = CancellationToken();

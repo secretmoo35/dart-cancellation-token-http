@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:cancellation_token_http/cancellable_http.dart' as http;
+import 'package:cancellation_token_http/http.dart' as http;
 import 'package:cancellation_token_http/src/boundary_characters.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:test/test.dart';

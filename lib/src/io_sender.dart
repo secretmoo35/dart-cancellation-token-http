@@ -3,8 +3,10 @@ import 'dart:io';
 
 import 'package:cancellation_token/cancellation_token.dart';
 
-import '../cancellable_http.dart';
-import '../io_client.dart';
+import 'base_request.dart';
+import 'exception.dart';
+import 'io_client.dart';
+import 'io_streamed_response.dart';
 
 /// Handles sending reguests with cancellation for [IOClient].
 class IOSender with Cancellable {

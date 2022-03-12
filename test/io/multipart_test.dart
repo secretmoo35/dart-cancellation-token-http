@@ -6,7 +6,7 @@
 
 import 'dart:io';
 
-import 'package:cancellation_token_http/cancellable_http.dart' as http;
+import 'package:cancellation_token_http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 

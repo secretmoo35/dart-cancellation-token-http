@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:cancellation_token_http/cancellable_http.dart';
+import 'package:cancellation_token_http/http.dart';
 import 'package:cancellation_token_http/src/utils.dart';
 import 'package:test/test.dart';
 

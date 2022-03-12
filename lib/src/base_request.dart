@@ -7,7 +7,7 @@ import 'dart:collection';
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:meta/meta.dart';
 
-import '../cancellable_http.dart' show get;
+import '../http.dart' show get;
 import 'base_client.dart';
 import 'base_response.dart';
 import 'byte_stream.dart';
