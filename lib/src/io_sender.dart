@@ -122,16 +122,18 @@ class IOSender with Cancellable {
   }
 
   @override
-  void onCancel(Exception cancelException, [StackTrace? trace]) {
-    if (!completer.isCompleted) completer.completeError(cancelException, trace);
+  void onCancel(Exception cancelException, [StackTrace? stackTrace]) {
+    if (!completer.isCompleted) {
+      completer.completeError(cancelException, stackTrace);
+    }
     // Add the cancellation exception and close the response stream if it's
     // active
     responseStreamController
-      ?..addError(cancelException, trace)
+      ?..addError(cancelException, stackTrace)
       ..close();
     responseStreamController = null;
     // Abort the HTTP request if cancelled whilst sending the request
-    clientRequest?.abort(cancelException, trace);
+    clientRequest?.abort(cancelException, stackTrace);
     // Detatch and destroy the socket to close the connection if cancelled
     // whilst receiving the response body
     clientResponse?.detachSocket().then((value) => value.destroy());

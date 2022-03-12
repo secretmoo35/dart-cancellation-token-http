@@ -1,3 +1,9 @@
+## 1.0.0
+
+* Initial stable release.
+* Update `cancellation_token` to 1.3.4
+* Rename `cancellable_http.dart` to `http.dart`, matching the `http` package.
+
 ## 1.0.0-dev.1
 
 * List platforms in `pubspec.yaml`
