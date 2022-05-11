@@ -1,3 +1,7 @@
+## 1.1.0
+
+* Update `cancellation_token` to 1.4.0
+
 ## 1.0.0
 
 * Initial stable release.
