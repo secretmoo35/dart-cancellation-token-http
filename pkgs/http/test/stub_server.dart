@@ -70,7 +70,7 @@ void hybridMain(StreamChannel<dynamic> channel) async {
     } catch (_) {
       return;
     }
-      
+
     var encodingName = request.uri.queryParameters['response-encoding'];
     var outputEncoding =
         encodingName == null ? ascii : requiredEncodingForCharset(encodingName);

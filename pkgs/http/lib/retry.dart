@@ -129,10 +129,11 @@ class RetryClient extends BaseClient {
       }
 
       if (response != null) {
-        if (i == _retries || !await CancellableFuture.from(
-          () => _when(response!), 
-          cancellationToken,
-        )) return response;
+        if (i == _retries ||
+            !await CancellableFuture.from(
+              () => _when(response!),
+              cancellationToken,
+            )) return response;
 
         // Make sure the response stream is listened to so that we don't leave
         // dangling connections.
@@ -142,7 +143,7 @@ class RetryClient extends BaseClient {
       await Future<void>.delayed(_delay(i)).asCancellable(cancellationToken);
       if (_onRetry != null) {
         await CancellableFuture.from(
-          () => _onRetry!.call(request, response, i), 
+          () => _onRetry!.call(request, response, i),
           cancellationToken,
         );
       }
