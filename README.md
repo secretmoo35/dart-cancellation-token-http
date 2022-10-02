@@ -1,74 +1,15 @@
-# Dart Cancellation Token: HTTP
+# Cancellation Token HTTP
 
-A fork of Dart's [HTTP package](https://pub.dev/packages/http) with request cancellation using [cancellation_token](https://pub.dev/packages/cancellation_token).
+A fork of [dart-lang/http](https://github.com/dart-lang/http) with support for request cancellation using [cancellation_token](https://pub.dev/packages/cancellation_token).
 
-**Currently based on version 0.13.4 of the [HTTP package](https://pub.dev/packages/http/versions/0.13.4).**
 
-## Features
+## Packages
 
-* Retains all original functionality of the HTTP package.
-* Cancel HTTP requests using CancellationTokens.
-* Pair with the [cancellation_token](https://pub.dev/packages/cancellation_token) package to make a cancellable API request and parse the response JSON in a cancellable isolate using a single token.
+Although this fork contains all of the packages from the source repo, currently only the `http` package has been updated with support for cancellation.
 
-## Using
-
-This package keeps the same APIs as the base HTTP package, but with the addition of optional `cancellationToken` parameters. For more information on CancellationTokens, refer to [CancellationTokens](https://pub.dev/packages/cancellation_token#cancellation-tokens).
-
-```dart
-import 'package:cancellation_token_http/http.dart' as http;
-
-var token = http.CancellationToken();
-try {
-  // A single CancellationToken can be used for multiple requests
-  var readResponse = await http.read(
-    Uri.parse('https://example.com/foobar.txt'),
-    cancellationToken: token,
-  );
-  var postResponse = await http.post(
-    Uri.parse('https://example.com/whatsit/create'),
-    body: {'name': 'doodle', 'color': 'blue'},
-    cancellationToken: token,
-  );
-  print('Read response: $readReponse');
-  print('Post response status: ${postResponse.statusCode}');
-  print('Post response body: ${postResponse.body}');
-} on http.CancelledException {
-  // If `token.cancel()` is called, the request will be cancelled and a
-  // CancelledException will be thrown
-  print('Request cancelled');
-}
-```
-
-## Parsing JSON in an isolate
-
-To parse JSON responses in a cancellable isolate, add the cancellation_token package to your project and use the same CancellationToken for both the API request and `cancellableCompute()`:
-
-```dart
-import 'package:cancellation_token/cancellation_token.dart';
-import 'package:cancellation_token_http/http.dart' as http;
-
-Future<void> makeRequest() async {
-  var token = CancellationToken();
-  try {
-    var response = await http.get(
-      Uri.parse('https://example.com/bigjson'),
-      cancellationToken: token,
-    );
-    var parsedResponse = cancellableCompute(
-      _readAndParseJson,
-      response.body,
-      token,
-    );
-    print('Request and parse complete');
-  } on CancelledException {
-    // If `token.cancel()` is called, the request and response parsing will be
-    // cancelled and a CancelledException will be thrown
-    print('Request and parse cancelled');
-  }
-}
-
-static ChunkyApiResponse _readAndParseJson(String json) {
-  final Map<String, dynamic> decodedJson = jsonDecode(json);
-  return ChunkyApiResponse.fromJson(decodedJson);
-}
-```
+| Package | Description | Version |
+|---|---|---|
+| [cancellation_token_http](pkgs/http/) | A composable, multi-platform, Future-based API for HTTP requests. | [![pub package](https://img.shields.io/pub/v/cancellation_token_http.svg)](https://pub.dev/packages/cancellation_token_http) |
+| [http_client_conformance_tests](pkgs/http_client_conformance_tests/) | A library that tests whether implementations of package:http's `Client` class behave as expected. | |
+| [cronet_http](pkgs/cronet_http/) | An Android Flutter plugin that provides access to the [Cronet](https://developer.android.com/guide/topics/connectivity/cronet/reference/org/chromium/net/package-summary) HTTP client. | [![pub package](https://img.shields.io/pub/v/cronet_http.svg)](https://pub.dev/packages/cronet_http) |
+| [cupertino_http](pkgs/cupertino_http/) | A macOS/iOS Flutter plugin that provides access to the [Foundation URL Loading System](https://developer.apple.com/documentation/foundation/url_loading_system). | [![pub package](https://img.shields.io/pub/v/cupertino_http.svg)](https://pub.dev/packages/cupertino_http) |
