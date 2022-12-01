@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:cancellation_token_http/http.dart';
 import 'package:cancellation_token_http/retry.dart';
 import 'package:cancellation_token_http/testing.dart';
@@ -37,7 +39,7 @@ void main() {
       final token = CancellationToken()..cancel();
       final client = RetryClient(
         MockClient(expectAsync1((_) async => throw token.exception, count: 1)),
-        when: (_) => false,
+        when: (_) => true,
       );
 
       expect(
@@ -196,24 +198,6 @@ void main() {
     });
   });
 
-  test('handles cancellation during delay', () {
-    // Use FakeAsync to prevent the delay from ever completing
-    FakeAsync().run((fake) {
-      final token = CancellationToken();
-      final client = RetryClient(
-        MockClient(expectAsync1((_) async => Response('', 503))),
-        delay: (requestCount) => const Duration(seconds: 5),
-      );
-
-      expect(
-        client.get(Uri.http('example.org', ''), cancellationToken: token),
-        throwsA(isA<CancelledException>()),
-      );
-      token.cancel();
-      fake.flushMicrotasks();
-    });
-  });
-
   test('calls onRetry for each retry', () async {
     var count = 0;
     final client = RetryClient(
@@ -282,5 +266,100 @@ void main() {
 
     final response = await client.get(Uri.http('example.org', ''));
     expect(response.statusCode, equals(200));
+  });
+
+  group('handles cancellation', () {
+    test('during the retry delay', () {
+      // Use FakeAsync to prevent the delay from ever completing
+      fakeAsync((fake) {
+        final token = CancellationToken();
+        final client = RetryClient(
+          MockClient(expectAsync1((_) async => Response('', 503))),
+          delay: (requestCount) => const Duration(seconds: 5),
+        );
+
+        expect(
+          client.get(Uri.http('example.org', ''), cancellationToken: token),
+          throwsA(isA<CancelledException>()),
+        );
+        fake.flushMicrotasks();
+        token.cancel();
+      });
+    });
+
+    test('during when callback', () async {
+      fakeAsync((fake) {
+        var whenCalled = false;
+        final whenCompleter = Completer<bool>();
+        final token = CancellationToken();
+        final client = RetryClient(
+          MockClient((_) async => Response('', 503)),
+          delay: (_) => Duration.zero,
+          when: (_) async {
+            whenCalled = true;
+            return await whenCompleter.future;
+          },
+        );
+
+        expect(
+          client.get(Uri.http('example.org', ''), cancellationToken: token),
+          throwsA(isA<CancelledException>()),
+        );
+        fake.flushTimers();
+        token.cancel();
+
+        expect(whenCalled, isTrue);
+      });
+    });
+
+    test('during whenError callback', () async {
+      fakeAsync((fake) {
+        var whenErrorCalled = false;
+        final whenErrorCompleter = Completer<bool>();
+        final token = CancellationToken();
+        final client = RetryClient(
+          MockClient((_) async => throw Exception('Fake request error')),
+          delay: (_) => Duration.zero,
+          whenError: (_, __) async {
+            whenErrorCalled = true;
+            return await whenErrorCompleter.future;
+          },
+        );
+
+        expect(
+          client.get(Uri.http('example.org', ''), cancellationToken: token),
+          throwsA(isA<CancelledException>()),
+        );
+        fake.flushTimers();
+        token.cancel();
+
+        expect(whenErrorCalled, isTrue);
+      });
+    });
+
+    test('during onRetry callback', () async {
+      fakeAsync((fake) {
+        var onRetryCalled = false;
+        final onRetryCompleter = Completer<void>();
+        final token = CancellationToken();
+        final client = RetryClient(
+          MockClient((_) async => Response('', 503)),
+          delay: (_) => Duration.zero,
+          onRetry: (_, __, ___) async {
+            onRetryCalled = true;
+            return await onRetryCompleter.future;
+          },
+        );
+
+        expect(
+          client.get(Uri.http('example.org', ''), cancellationToken: token),
+          throwsA(isA<CancelledException>()),
+        );
+        fake.flushTimers();
+        token.cancel();
+
+        expect(onRetryCalled, isTrue);
+      });
+    });
   });
 }
