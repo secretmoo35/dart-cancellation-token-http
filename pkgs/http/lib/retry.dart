@@ -118,7 +118,8 @@ class RetryClient extends BaseClient {
         );
       } catch (error, stackTrace) {
         // Always rethrow cancellation errors
-        if (error == cancellationToken?.exception) rethrow;
+        if (cancellationToken?.isCancelled == true &&
+            error == cancellationToken?.exception) rethrow;
         // Rethrow if this is the last attempt
         if (i == _retries) rethrow;
         // Rethrow if _whenError returns false, indicating we shouldn't retry
