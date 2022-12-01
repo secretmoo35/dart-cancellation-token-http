@@ -4,7 +4,7 @@
 
 @TestOn('browser')
 
-import 'package:http/browser_client.dart';
+import 'package:cancellation_token_http/browser_client.dart';
 import 'package:http_client_conformance_tests/http_client_conformance_tests.dart';
 import 'package:test/test.dart';
 

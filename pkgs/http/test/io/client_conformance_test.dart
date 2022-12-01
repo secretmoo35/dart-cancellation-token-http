@@ -4,7 +4,7 @@
 
 @TestOn('vm')
 
-import 'package:http/io_client.dart';
+import 'package:cancellation_token_http/io_client.dart';
 import 'package:http_client_conformance_tests/http_client_conformance_tests.dart';
 import 'package:test/test.dart';
 

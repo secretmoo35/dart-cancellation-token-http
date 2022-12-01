@@ -2,7 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:http/http.dart';
+import 'package:cancellation_token_http/http.dart';
 
 import 'src/redirect_tests.dart';
 import 'src/request_body_streamed_tests.dart';

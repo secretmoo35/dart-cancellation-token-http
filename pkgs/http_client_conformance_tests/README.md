@@ -21,7 +21,7 @@ of a `package:http`
 like:
 
 ```dart
-import 'package:http/http.dart';
+import 'package:cancellation_token_http/http.dart';
 import 'package:test/test.dart';
 
 import 'package:http_client_conformance_tests/http_client_conformance_tests.dart';

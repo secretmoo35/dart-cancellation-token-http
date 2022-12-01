@@ -5,7 +5,7 @@ A fork of [dart-lang/http](https://github.com/dart-lang/http) with support for r
 
 ## Packages
 
-Although this fork contains all of the packages from the source repo, currently only the `http` package has been updated with support for cancellation.
+Although this fork contains all of the packages from the source repo, currently only the `http` package has been updated with full support for cancellation.
 
 | Package | Description | Version |
 |---|---|---|
