@@ -86,8 +86,8 @@ class MultipartRequest extends BaseRequest {
   @override
   ByteStream finalize() {
     // TODO: freeze fields and files
-    final boundary = _boundaryString();
-    headers['content-type'] = 'multipart/form-data; boundary=${boundary.replaceAll(RegExp(r'[^a-zA-Z0-9]'), 'A')}';
+    final boundary = _boundaryString().replaceAll(RegExp(r'[^a-zA-Z0-9]'), 'A');
+    headers['content-type'] = 'multipart/form-data; boundary=${boundary}';
     super.finalize();
     return ByteStream(_finalize(boundary));
   }
